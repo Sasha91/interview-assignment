@@ -18,6 +18,7 @@ function sendSql()
 
         // $sql = "SELECT firstname, lastname FROM users";
         $result = $conn->query($_POST['sql']);
+        $fields = $result->fetch_fields();
 
         if(!$result) {
             return false;
@@ -31,13 +32,13 @@ function sendSql()
             while($row = $result->fetch_assoc()) {
                 $txt = "";
 
-                $txt = isset($row["id"]) ? $txt . $row["id"] . ", " : $txt . "";
-                $txt = isset($row["firstname"]) ? $txt . $row["firstname"] . ", " : $txt . "";
-                $txt = isset($row["lastname"]) ? $txt . $row["lastname"] . ", " : $txt . "";
-                $txt = isset($row["email"]) ? $txt . $row["email"] . ", " : $txt . "";
-
+                foreach($fields as $value) {
+                    $txt .= $value->name . ": " . $row[$value->name] . ", ";
+                }
                 
-                $txt = $txt . "\n";
+                $txt = rtrim($txt, ", ");
+                $txt .= "\n";
+                
                 fwrite($fileHandle, $txt);
             }
 
@@ -45,7 +46,7 @@ function sendSql()
 
             if(filesize("sql_results.txt") > 0) {
                 $outer_count = 0;
-                $fields = $result->fetch_fields();
+                
 
                 echo "DELETE FROM users WHERE ";
 
@@ -53,8 +54,8 @@ function sendSql()
                 
                     // echo $value->name;
                     echo $value->name . " in {". 
-                    get_row_attribute($result, $value).
-                    "} AND";
+                    get_row_attribute($result, $value->name).
+                    "} AND ";
 
                     $outer_count++;
                     $result->data_seek($outer_count);
@@ -78,7 +79,7 @@ function get_row_attribute($sql_result, $attribute) {
     
     $sql_result->data_seek(0);
     while($id_row = $sql_result->fetch_assoc()) {
-        $txt = $txt . $id_row[$attribute] . ", ";
+        $txt .= $id_row[$attribute] . ", ";
     }
 
     $txt = rtrim($txt, ", ");
