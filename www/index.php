@@ -31,6 +31,9 @@
 			<div class="row">
 				<div class="col-lg-12">
 					<?php if(sendSql()){ ?>
+						<form>
+							<a href="sql_results.txt" download="sql_results.txt"><button type="button" class="btn btn-success">Download!</button></a>
+			 			</form>
 						<h3>sql is successful</h3> 
 					<?php } ?>
 				</div>
